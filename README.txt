@@ -8,4 +8,4 @@ Current dependencies are:
 
 Packages:
 - Arduino: EmonLib
-- Python: pySerial, time
+- Python: pySerial, time, matplotlib, seaborn, numpy, pandas
