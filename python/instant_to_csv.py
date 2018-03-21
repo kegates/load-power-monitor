@@ -39,7 +39,7 @@ def plot_and_update():
     ser.close()
 
     f = open('output.csv','w+')
-    f.write("Voltage,Current\n")
+    f.write("Current,Voltage\n")
     f.write(full_str)
     f.close()
 
