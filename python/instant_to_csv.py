@@ -4,20 +4,28 @@ import atexit
 import time
 import csv
 import sys
+from argparse import ArgumentParser
 
+PORT = None
 
+parser = ArgumentParser(description="Serial Port Parser")
+parser.add_argument("-p", dest="port",
+        help="port name", metavar="PORT")
+
+args = parser.parse_args()
+
+if args.port != None:
+    PORT = args.port
 
 def find_port_arduino():
     act_port = None
     ports = list(serial.tools.list_ports.comports())
     for p in ports:
-        if "Arduino" in p[1]:
+        if PORT in p[1]:
             act_port = p[0]
             print("Arduino found on port: " + act_port)
             break
-
     return act_port
-
 
 def plot_and_update():
     port = find_port_arduino()
