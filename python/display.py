@@ -6,20 +6,30 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 import numpy as np
 import pandas as pd
+from argparse import ArgumentParser
 
+PORT = None
 
+parser = ArgumentParser(description="Serial Port Parser")
+parser.add_argument("-p", dest="port",
+                    help="port name", metavar="PORT")
+
+args = parser.parse_args()
+
+if args.port != None:
+    PORT = args.port
 
 def find_port_arduino():
     act_port = None
     ports = list(serial.tools.list_ports.comports())
+    print(ports)
     for p in ports:
-        if "Arduino" in p[1]:
+        if PORT in p[1]:
             act_port = p[0]
             print("Arduino found on port: " + act_port)
             break
-
+    print(act_port)
     return act_port
-
 
 def plot_and_update():
     port = find_port_arduino()
@@ -41,7 +51,7 @@ def plot_and_update():
     app_power = 0.0
 
     for i in range(0,40):
-        line_str = ser.readline().decode('utf-8').replace('\r','').replace('\n','')
+        line_str = ser.readline().decode('utf-8', errors='replace').replace('\r','').replace('\n','')
         str_lst = line_str.split(" ")
         if len(str_lst) is not num_in_meas:
             continue
@@ -59,9 +69,9 @@ def plot_and_update():
     sb.set_style("darkgrid")
     fig, axes = plt.subplots(nrows=2,ncols=2, sharex=True, sharey=False)
      
-    ax1 = sb.pointplot(x="time",y="c_rms", data=df, ax=axes[0,0], markers="", color="blue")
-    ax2 = sb.pointplot(x="time", y="v_rms", data=df, ax=axes[0,1], markers="", color="red")
-    ax3 = sb.pointplot(x="time",y="app_power",data=df, ax=axes[1,0], markers="",color="purple")
+    ax1 = sb.pointplot(x="time",y="c_rms", data=df, ax=axes[0,0], markers="")
+    ax2 = sb.pointplot(x="time", y="v_rms", data=df, ax=axes[0,1], markers="")
+    ax3 = sb.pointplot(x="time",y="app_power",data=df, ax=axes[1,0], markers="")
 
     ax1.set_xticks([])
     ax1.set_xlabel("")
@@ -73,10 +83,6 @@ def plot_and_update():
     plt.show()
 
     ser.close()
-
-   
-
-   
 
 if __name__ == "__main__":
     plot_and_update()
