@@ -1,12 +1,8 @@
 import serial.tools.list_ports
 import serial
-import atexit
 import time
-import matplotlib.pyplot as plt
-import seaborn as sb
-import numpy as np
-import pandas as pd
 from argparse import ArgumentParser
+import sys
 
 PORT = None
 
@@ -28,7 +24,6 @@ def find_port_arduino():
             act_port = p[0]
             print("Arduino found on port: " + act_port)
             break
-    print(act_port)
     return act_port
 
 def plot_and_update():
@@ -39,48 +34,37 @@ def plot_and_update():
 
     ser = serial.Serial(port)
     
-    
+    ser.readline().decode('utf-8')
+    #should check to make sure this is the proper start-up response
+
     print("Connection Open with Arduino On: " + ser.name)
+    sys.stdout.flush()
 
-    num_in_meas = 3
-    c_lst = []
-    v_lst = []
+    num_in_meas = 5
     a_pwr_lst = []
-    current = 0.0
-    voltage = 0.0
-    app_power = 0.0
+    r_pwr_lst = []
+    r_pwr = 0.0
+    a_pwr = 0.0
+    Vrms = 0.0
+    Irms = 0.0
+    pf = 0.0
 
-    for i in range(0,40):
+    #Should have a start and stop button on node red dashboard with sentinal value as opposed to infinite update loop
+    #Will receive '<realpower> <apparentpower> <Vrms> <Irms> <pf>' each occurance upon sending 'D'
+    for i in range(0,5):
+        ser.write(b'D')
         line_str = ser.readline().decode('utf-8', errors='replace').replace('\r','').replace('\n','')
         str_lst = line_str.split(" ")
+	#should use try catch block instead of this
         if len(str_lst) is not num_in_meas:
             continue
-        (current, voltage, app_power) = list(map(float, str_lst))
-        c_lst.append(current)
-        v_lst.append(voltage)
-        a_pwr_lst.append(app_power)
+        (r_pwr, a_pwr, Vrms, Irms, pf) = list(map(float, str_lst))
+        a_pwr_lst.append(a_pwr)
+        r_pwr_lst.append(r_pwr) 
+        print("test")
+        #sys.stdout.flush()
+        time.sleep(1)
 
-    dataset = list(zip(range(0,len(c_lst)),c_lst, v_lst, a_pwr_lst))
-    df = pd.DataFrame(data=dataset, columns=['time', 'c_rms','v_rms','app_power'])
-    print(df)
-
-    ncols = 2
-    nrows = 2
-    sb.set_style("darkgrid")
-    fig, axes = plt.subplots(nrows=2,ncols=2, sharex=True, sharey=False)
-     
-    ax1 = sb.pointplot(x="time",y="c_rms", data=df, ax=axes[0,0], markers="")
-    ax2 = sb.pointplot(x="time", y="v_rms", data=df, ax=axes[0,1], markers="")
-    ax3 = sb.pointplot(x="time",y="app_power",data=df, ax=axes[1,0], markers="")
-
-    ax1.set_xticks([])
-    ax1.set_xlabel("")
-    ax2.set_xlabel("")
-    ax3.set_xlabel("")
-
-
-    print(type(ax1))
-    plt.show()
 
     ser.close()
 

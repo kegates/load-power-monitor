@@ -14,7 +14,7 @@ void setup()
   emon1.voltage(2, 120, 0);  // Voltage: input pin, calibration, phase_shift
   emon1.current(1, 60);       // Current: input pin, calibration.
 
-  Serial.println("Send 'D' to recieve real time values.");
+  Serial.println("Send 'D' to recieve real time values:");
 }
 
 void loop()
