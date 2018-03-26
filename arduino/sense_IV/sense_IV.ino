@@ -22,7 +22,7 @@ void loop()
   while(!Serial.available()){}
   char read = Serial.read();
   if(read == 'D'){
-    emon1.calcVI(20,2000);         // Calculate all. No.of half wavelengths (crossings), time-out
+    emon1.calcVI(40,2000);         // Calculate all. No.of half wavelengths (crossings), time-out
     emon1.serialprint(); // Print out all variables (realpower, apparent power, Vrms, Irms, power factor)
   }
 }
